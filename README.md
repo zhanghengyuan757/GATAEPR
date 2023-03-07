@@ -25,5 +25,7 @@ some commands:
 
 visit  https://dynverse.org/ for dynoverse guidence.
 
-If you have any questions please ask in Issues. We are glad to answer your questions and take your suggestions.
+If you have any questions please ask in Issues.
+
+We are glad to answer your questions and take your suggestions.
 
