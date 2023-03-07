@@ -5,7 +5,7 @@ Guide Steps:
 
 1、Download source codes from github
 
-2、Install anconda and prepare python environment.
+2、Install anconda , prepare python environment and cuda environment.
 
 3、Install requires from setup.py( by conda install or pip install)
 
