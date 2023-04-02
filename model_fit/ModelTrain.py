@@ -10,11 +10,12 @@ import torch.optim as optim
 from matplotlib import pyplot as plt
 from sklearn.preprocessing import LabelEncoder
 
+from compare.prob import prob_rank
 from model_fit.Models import RGANRP, Gcn, GcnVae, GAT
 from processing.DatasetPrepare import get_directed_edges, kfold_split, prepare_gae_data, get_dataset, \
     sparse_mx_to_torch_sparse_tensor, normalize_adj
 
-from r.dynoverse import sc_similarity
+from compare.dynoverse import sc_similarity
 from tools.GraphTools import get_dag_by_predit_prob
 from tools.PathTools import DataPathGetter
 from tools.ReportTools import reports
@@ -67,8 +68,7 @@ def cal_dist(n0, n1, emb, epsilon=0.01):
     return sigmoid(emb[n1, -1] - np.log(dist))
 
 
-# sc_simi single-cell compare need docker and R environment
-def ggae_predict(cancer, k_fold=5, model_name: str = 'RGANRP', sc_simi=False):
+def ggae_predict(cancer, k_fold=5, model_name: str = 'RGANRP', sc_simi=False, prob=False):
     edge_directed, unknown = get_directed_edges(cancer)
     folds = kfold_split(k_fold, edge_directed)  # 返回k_fold个数组[(train_index,test_index),(),...]
     for k in range(k_fold):
@@ -97,7 +97,7 @@ def ggae_predict(cancer, k_fold=5, model_name: str = 'RGANRP', sc_simi=False):
         draw_graph_result(cancer, test_y[['i', 'j']], y, pred)
         labels_all, edges_pred = get_pred_from_emb(edge_directed, emb)
         draw_graph_result_dag(cancer, edge_directed, unknown, emb)
-        if sc_simi:
+        if sc_simi:  # sc_simi single-cell compare need docker and R environment
             dpg = DataPathGetter(cancer)
             expr = pd.read_csv(dpg.get_path('gene_expr_fpkm.csv'), index_col=0)
             stage = pd.read_csv(dpg.get_path('cancer_stage.csv'), index_col=0)
@@ -107,6 +107,13 @@ def ggae_predict(cancer, k_fold=5, model_name: str = 'RGANRP', sc_simi=False):
             edges_with_pred_label = pd.concat(
                 [edge_directed, pd.Series(edges_pred, name='pred'), pd.Series(labels_all, name='label')], axis=1)
             sc_similarity(expr, stage, edges_with_pred_label)
+        if prob:
+            edge_directed = edge_directed.append(
+                pd.DataFrame(edge_directed[['j', 'i']].to_numpy(), columns=['i', 'j'])).reset_index(drop=True)
+            edges_with_pred_label = pd.concat(
+                [edge_directed, pd.Series(edges_pred, name='pred'), pd.Series(labels_all, name='label')], axis=1)
+            prob_rank(cancer, edges_with_pred_label)
+        return
 
 
 def draw_graph_result_dag(cancer, edge_directed, unknown, emb, epsilon=0.01):

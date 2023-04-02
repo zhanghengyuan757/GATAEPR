@@ -18,7 +18,7 @@ def sc_similarity(expr, stage, edges_with_pred_label):
             robjects.globalenv['stage'] = robjects.conversion.rpy2py(stage)
         try:
             robjects.r("method = '%s'" % single_cell_method)
-            robjects.r.source('r/dyno.R')
+            robjects.r.source('compare/dyno.R')
         except Exception as e:
             print(single_cell_method, '报错')
             continue
@@ -49,8 +49,7 @@ def match_rate(edges: pd.DataFrame, new_list):
             dyno_pred.append(1)
         elif scorei > scorej:
             dyno_pred.append(0)
-        else:
+        else:  # single cell method pred that two patients have no directed link
             dyno_pred.append(int(1 - labels))
-    print('dyno report!!!!')
     reports(y, dyno_pred)
     return sum(match_list) / len(match_list)
