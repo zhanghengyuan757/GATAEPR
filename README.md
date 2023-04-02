@@ -1,5 +1,5 @@
 # GATAERP
-This is the  code of paper “GATAERP: A Graph Attention Autoencoder for Relationship Prediction of Cancer Progression”
+This is the  code of paper “GATAEPR: A Graph Attention Autoencoder for Predicting Disease Progression Relationships in Cancer Patients”
 
 Guide Steps:
 
